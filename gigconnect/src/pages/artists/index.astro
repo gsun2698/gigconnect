@@ -5,21 +5,57 @@ import artistsData from "../../data/artists.json";
 import type { Artist } from "../../types/Artists";
 
 const artists = artistsData as Artist[];
+
+function byTag (tag: string) {
+  return artists.filter((a) => a.tags?.includes(tag));
+}
+
+const sections: { title: string; tag: string; subtitle: string } [] = [
+  { title: "Top Artists", tag: "top", subtitle: "Curated picks for headline-ready bookings." },
+  { title: "Electronic & Dance", tag: "electronic", subtitle: "Club forward DJs and electronic performers." },
+  { title: "Most Popular", tag: "popular", subtitle: "High-demanding acts trending with venues and promoters" },
+  { title: "Live Bands & Acoustics", tag: "band", subtitle: "Live bands across genres for all event types." },
+  { title: "Emerging & Budget-Friendly", tag: "budget", subtitle: "Great option for smaller rooms and tighter budgets." },
+];
+
+// Prevent repeats across sections
+const used = new Set<string>();
+function unique(list: Artist[]) {
+  return list.filter((a) =>{
+    if (used.has(a.slug)) return false;
+    used.add(a.slug);
+    return true;
+  });
+}
 ---
 
 <BaseLayout title="GigConnect - Artists">
-  <section class="mb-6">
+  <section class="mb-8">
     <h1 class="text-2xl font-bold mb-1">Artists</h1>
     <p class=" text-sm text-slate-300">
-      Browse available artists. Each card shows a quick snapshot ; click for details
+      Browse curated sections, then click into an artist for details.
     </p>
   </section>
 
-  <section>
-    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 place-items-center">
-      {artists.map((artist) => (
-        <ArtistCard artist={artist} />
-      ))}
-    </div>
-  </section>
+  <div class="space-y-10">
+    {sections.map((s) => {
+      const list = unique(byTag(s.tag)).slice(0, 4); // Keep sections tight and consistent
+      if (list.length === 0) return null;
+      
+      return (
+        <section>
+          <div class="mb-4">
+            <h2 class="text-lg font-semibold">{s.title}</h2>
+            <p class="text-sm text-slate-400">{s.subtitle}</p>
+          </div>
+
+          <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 place-items-center">
+            {list.map((artist) => (
+              <ArtistCard artist={artist} />
+            ))}
+          </div>
+        </section>
+      );
+    })}
+  </div>
 </BaseLayout>

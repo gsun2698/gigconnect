@@ -6,4 +6,5 @@ export interface Artist {
     rateTier: string
     image?: string;
     description: string;
+    tags: string[];
 }

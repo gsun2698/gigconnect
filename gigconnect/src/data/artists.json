@@ -5,8 +5,9 @@
     "genre": "Electronic",
     "location": "Boston, MA",
     "rateTier": "$$",
-    "image": "/images/artists/dj-aurora.png",
-    "description": "High-energy electronic DJ specializing in house and melodic techno. Ideal for mid-size clubs and late-night events."
+    "image": "../images/artists/djaurora.png",
+    "description": "High-energy electronic DJ specializing in house and melodic techno. Ideal for mid-size clubs and late-night events.",
+    "tags": ["top", "popular", "electronic"]
   },
   {
     "slug": "the-midnights",
@@ -14,8 +15,10 @@
     "genre": "Indie Rock",
     "location": "New York, NY",
     "rateTier": "$$$",
-    "image": "/images/artists/the-midnights.png",
-    "description": "Indie rock band known for atmospheric, nostalgic soundscapes. Great for theaters and headline slots."
+    "image": "../images/artists/themidnights.png",
+    "description": "Indie rock band known for atmospheric, nostalgic soundscapes. Great for theaters and headline slots.",
+    "tags":["top", "popular", "band"]
+
   },
   {
     "slug": "luna-sax",
@@ -23,7 +26,98 @@
     "genre": "Jazz",
     "location": "Chicago, IL",
     "rateTier": "$",
-    "image": "/images/artists/luna-sax.png",
-    "description": "Solo saxophonist performing smooth jazz and standards. Perfect for cocktail hours and smaller vanues"
+    "image": "../images/artists/lunasax.png",
+    "description": "Solo saxophonist performing smooth jazz and standards. Perfect for cocktail hours and smaller vanues",
+    "tags": ["budget", "emerging", "band"]
+  },
+  {
+    "slug": "dj-nebula",
+    "name": "DJ Nebula",
+    "genre": "Electronic",
+    "location": "Los Angeles, CA",
+    "rateTier": "$$$",
+    "image": "../images/artists/djnebula.png",
+    "description": "Festival-ready DJ with cosmic visuals and bass-forward sets built for big crowds.",
+    "tags": ["popular", "electronic"]  
+  },
+  {
+    "slug": "neon-static",
+    "name": "Neon Static",
+    "genre": "Alt Rock",
+    "location": "Austin, TX",
+    "rateTier": "$$",
+    "image": "../images/artists/neonstatic.png",
+    "description": "Alt rock band with punchy riffs, tight drums, and a high-energy live show.",
+    "tags": ["band", "popular"]
+  },
+  {
+    "slug": "prairie-howl",
+    "name": "Prairie Howl",
+    "genre": "Country",
+    "location": "Nashville, TN",
+    "rateTier": "$$",
+    "image": "../images/artists/prairiehowl.png",
+    "description": "Modern country group with sing-along hooks-perfect for breweries and outdoor stages.",
+    "tags": ["band", "budget"]
+  },
+  {
+    "slug": "rhyme-wolf",
+    "name": "Rhyme Wolf",
+    "genre": "Hip-Hop",
+    "location": "Atlanta, GA",
+    "rateTier": "$$$",
+    "image": "../images/artists/rhymewolf.png",
+    "description": "Crows-hyping rapper with DJ-backed set and interactive call-and-response moments",
+    "tags": ["popular", "top"]
+  },
+  {
+    "slug": "velvet-harmony",
+    "name": "Velvet Harmony",
+    "genre": "R&B",
+    "location": "Philadelphia, PA",
+    "rateTier": "$$$",
+    "image": "../images/artists/velvetharmony.png",
+    "description": "R&B vocalist with a soulful set-ideal for upscale lounges and late-night programming",
+    "tags": ["popular"]
+  },
+  {
+    "slug": "coastal-acoustic",
+    "name": "Coastal Acoustic",
+    "genre": "Acoustic",
+    "location": "San Diego, CA",
+    "rateTier": "$",
+    "image": "../images/artists/coastalacoustic.png",
+    "description": "EEasygoing acoustic duo for patios, brunch sets, and small-room events",
+    "tags": ["budget", "emerging", "band"]
+  },
+  {
+    "slug": "midnight-brass",
+    "name": "Midnight Brass",
+    "genre": "Jazz/Funk",
+    "location": "New Orleans, LA",
+    "rateTier": "$$$",
+    "image": "../images/artists/midnightbrass.png",
+    "description": "Brass-heavy jazz/funk group built for dance floors and second-line energy",
+    "tags": ["band", "top"]
+  },
+  {
+    "slug": "dj-pulse",
+    "name": "DJ Pulse",
+    "genre": "Electronic",
+    "location": "Miami, FL",
+    "rateTier": "$$",
+    "image": "../images/artists/djpulse.png",
+    "description": "House-forward DJ with crisp transitions and a clean, club-first sound",
+    "tags": ["electronic", "popular"]
+  },
+  {
+    "slug": "sunset-serenade",
+    "name": "Sunset Serenade",
+    "genre": "Pop",
+    "location": "Seattle, WA",
+    "rateTier": "$$",
+    "image": "../images/artists/sunsetserenade.png",
+    "description": "Pop act with upbeat coverss and original-great for community events and festivals",
+    "tags": ["emerging", "budget"]
   }
 ]
