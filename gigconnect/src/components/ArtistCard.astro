@@ -1,0 +1,59 @@
+---
+import type { Artist } from "../types/Artists";
+
+interface Props {
+    artist: Artist;
+}
+
+const { artist } = Astro.props as Props;
+---
+
+<article class="group w-full max-w-xs bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-slate-600">
+  <!-- Image Header -->
+  <div class="relative h-40 overflow-hidden bg-slate-900">
+    {artist.image && (
+      <>
+        <!-- Blurred background fill -->
+        <img
+          src={artist.image}
+          alt=""
+          aria-hidden="true"
+          class="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-40"
+        />
+      
+        <!-- Foreground contained image -->
+        <img
+          src={artist.image}
+          alt={artist.name}
+          class="absolute inset-0 w-full h-full object-contain p-3"
+          loading="lazy"
+        />
+      </>
+    )}
+    
+    <!-- Gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent"></div>
+
+    <!-- Artist name -->
+    <div class="absolute bottom-0 left-0 right-0 p-3">
+      <h2 class="text-base font-semibold text-slate-100 drop-shadow-md">
+        {artist.name}
+      </h2>
+    </div>
+  </div>
+
+  <!--Body Content -->
+  <div class="p-4 flex flex-col gap-1">
+    <p class="text-xs text-slate-300">
+      {artist.genre} . {artist.location}
+    </p>
+    <p class="text-xs text-slate-300">Rate: {artist.rateTier}</p>
+
+    <a 
+      href={`/artists/${artist.slug}`}
+      class="mt-3 inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs text-center font-medium"
+    >
+      View details
+    </a>
+  </div>
+</article>

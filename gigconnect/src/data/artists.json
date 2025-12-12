@@ -1,4 +1,29 @@
 [
-    {
-
-}]
+  {
+    "slug": "dj-aurora",
+    "name": "DJ Aurora",
+    "genre": "Electronic",
+    "location": "Boston, MA",
+    "rateTier": "$$",
+    "image": "/images/artists/dj-aurora.png",
+    "description": "High-energy electronic DJ specializing in house and melodic techno. Ideal for mid-size clubs and late-night events."
+  },
+  {
+    "slug": "the-midnights",
+    "name": "The Midnights",
+    "genre": "Indie Rock",
+    "location": "New York, NY",
+    "rateTier": "$$$",
+    "image": "/images/artists/the-midnights.png",
+    "description": "Indie rock band known for atmospheric, nostalgic soundscapes. Great for theaters and headline slots."
+  },
+  {
+    "slug": "luna-sax",
+    "name": "Luna Sax",
+    "genre": "Jazz",
+    "location": "Chicago, IL",
+    "rateTier": "$",
+    "image": "/images/artists/luna-sax.png",
+    "description": "Solo saxophonist performing smooth jazz and standards. Perfect for cocktail hours and smaller vanues"
+  }
+]

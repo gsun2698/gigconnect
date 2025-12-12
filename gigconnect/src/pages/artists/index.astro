@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArtistCard from "../../components/ArtistCard.astro";
+import artistsData from "../../data/artists.json";
+import type { Artist } from "../../types/Artists";
+
+const artists = artistsData as Artist[];
+---
+
+<BaseLayout title="GigConnect - Artists">
+  <section class="mb-6">
+    <h1 class="text-2xl font-bold mb-1">Artists</h1>
+    <p class=" text-sm text-slate-300">
+      Browse available artists. Each card shows a quick snapshot ; click for details
+    </p>
+  </section>
+
+  <section>
+    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 place-items-center">
+      {artists.map((artist) => (
+        <ArtistCard artist={artist} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>
