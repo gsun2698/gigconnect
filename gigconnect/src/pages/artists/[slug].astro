@@ -1,0 +1,107 @@
+---
+import artists from "../../data/artists.json"
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+// Generate a static page for each artist based on slug
+export function getStaticPaths() {
+    return artists.map((a) => ({
+        params: { slug: a.slug },
+    }));
+}
+
+const { slug } = Astro.params;
+
+// Find the artist by slug
+const artist = artists.find((a) => a.slug === slug);
+if (!artist) {
+    // If someone tries to access a non-existent artist, throw an error
+    throw new Error(`Artist not found for slug: ${slug}`);
+}
+
+const STORAGE_KEY = "gigconnect-shortlist"
+---
+
+<BaseLayout title={`GigConnect - ${artist.name}`}>
+ 
+  <!-- Top nav -->
+  <section class="mb-6 flex items-center justify-between gap-4">
+    <a href="/artists"
+      class="text-sm text-slate-300 hover:text-indigo-400 transition-colors"
+    >
+      &larr; Back to Artists
+    </a>
+   
+    <a 
+      href="/planner"
+      class="text-sm bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg font-medium transition-colors"
+      >
+        View Planner
+    </a>
+  </section>
+
+  <!-- Main Content -->
+  <section class="grid gap-8 lg:grid-cols-2 items-start">
+    <!-- Image + actions -->
+    <div class="w-full">
+      <div class="relative h-72 sm:h-80 rounded-2xl overflow-hidden border border-slate-700 bg-slate-900">
+            <!-- Blurred background fill -->
+        {artist.image && (
+          <img
+            src={artist.image}
+            alt=""
+            aria-hidden="true"
+            class="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-40"
+            loading="lazy"
+          />
+        )}
+            <!-- contained foreground image -->
+        {artist.image && (
+          <img
+            src={artist.image}
+            alt={artist.name}
+            class="absolute inset-0 w-full h-full object-contain p-6"
+            loading="lazy"
+           />
+        )}
+
+            <!-- Readibility overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent"></div>
+
+            <!-- Name overlay -->
+        <div class="absolute bottom-0 left-0 right-0 p-5">
+          <h1 class="text-3xl font-bold text-slate-100 drop-shadow-md">
+            {artist.name}
+          </h1>
+          <p class="mt-1 text-sm text-slate-200/90">
+            {artist.genre} . {artist.location}
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Actions -->
+        <div class= "mt-4 flex flex-wrap gap-3">
+          <button
+            id="add-to-planner"
+            data-slug={artist.slug}
+            class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Add to Planner
+          </button>
+              
+          <button
+            id="remove-from-planner"
+            data-slug={artist.slug}
+            class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Remove
+          </button>
+
+          <span
+          id="planner-status"
+          class="text-sm text-slate-300 self-center"
+        ></span>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
