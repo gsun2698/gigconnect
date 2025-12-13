@@ -1,31 +1,21 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import artistsData from "../data/artists.json";
-import type { Artist } from "../types/Artists";
 
-const artists = artistsData as Artist[];
-
-//Embed JSON for client-side use
-const artistsJSON = JSON.stringify(artists);
 ---
 
 <BaseLayout title="GigConnect - Planner">
   <section class="mb-8">
     <h1 class="text-2xl font-bold mb-1">Planner</h1>
-    <p class=" text-sm text-slate-300">
-      Your shortlist of artists to consider for booking. Add artist from their detail pages
+    <p class="text-sm text-slate-300">
+      Your shortlist of artists to consider for booking. Add artists from their detail pages.
     </p>
   </section>
 
-  <!-- Embed the data for client side script -->
-  <script type="application/json" id="artists-data">
-    {artistsJSON}
-  </script>
-
-  <!-- Status/ empty state message -->
+  <!-- Status / empty state message -->
   <p id="planner-status" class="text-slate-300 text-sm mb-6"></p>
 
-  <!-- artist grid -->
+  <!-- Artist grid -->
   <div
     id="planner-grid"
     class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 place-items-center"
@@ -41,129 +31,94 @@ const artistsJSON = JSON.stringify(artists);
     </button>
   </div>
 
-  <script lang="ts">
-    type Artist = {
-      name: string;
-      slug: string;
-      genre: string;
-      location: string;
-      rateTier: string;
-      image?: string;
-      description: string;
-      tags: string[];
-    };
-
+  <!-- Client-side script -->
+  <script
+    type="module"
+    client:load
+    define:vars={{ artistsData }}
+  >
     const STORAGE_KEY = "gigconnect-shortlist";
 
-    const statusEl = document.getElementById("planner-status") as HTMLParagraphElement | null;
-    const gridEl = document.getElementById("planner-grid") as HTMLDivElement | null;
-    const clearBtn = document.getElementById("clear-shortlist") as HTMLButtonElement | null;
+    const statusEl = document.getElementById("planner-status");
+    const gridEl = document.getElementById("planner-grid");
+    const clearBtn = document.getElementById("clear-shortlist");
 
-    const artistsDataEl = document.getElementById("artists-data") as HTMLScriptElement | null;
-    const allArtists: Artist[] = artistsDataEl
-      ? JSON.parse(artistsDataEl.textContent || "[]")
-      : [];
-
-    function getShortlist(): string[] {
-        try{
-            const raw = localStorage.getItem(STORAGE_KEY);
-            const parsed = raw ? JSON.parse(raw) : [];
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
-            return [];
-        }
+    const allArtists = artistsData;
+  
+    function getShortlist() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
     }
 
-    function saveShortlist(slugs: string[]) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs));
+    function saveShortlist(slugs) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs));
     }
 
-    function removeFromShortlist(slug: string) {
-        const updated = getShortlist().filter((s) => s !== slug);
-        saveShortlist(updated);
-        render();
+    function removeFromShortlist(slug) {
+      const updated = getShortlist().filter((s) => s !== slug);
+      saveShortlist(updated);
+      render();
     }
-    
+
     function renderEmpty() {
-        if (statusEl) {
-            statusEl.textContent = 
-              "Your shortlist is empty. Browse artists to add them here.";
-        }
-        if (gridEl) gridEl.innerHTML = "";
+      if (statusEl) { 
+        statusEl.textContent =
+        "Your shortlist is empty. Browse artists to add them here.";
+      }
+      if (gridEl) gridEl.innerHTML = "";
     }
 
-    function render () {
-        if (!statusEl || !gridEl) return;
+    function render() {
+      if (!statusEl || !gridEl) return;
 
-        const shortlist = getShortlist();
+      const shortlist = getShortlist();
 
-        if (shortlist.length === 0) {
-            renderEmpty();
-            return;
-        }
+      if (shortlist.length === 0) {
+        renderEmpty();
+        return;
+      }
 
-        const selected = shortlist
-          .map((slug) => allArtists.find((a) => a.slug === slug ))
-          .filter(Boolean) as Artist[];
+      const selected = shortlist
+        .map(slug => allArtists.find(a => a.slug === slug))
+        .filter(Boolean);
 
-        if (selected.length === 0) {
-          renderEmpty();
-          return;
-        }
+      if (selected.length === 0) {
+        renderEmpty();
+        return;
+      }
 
-        statusEl.textContent = `Artists in planner: ${selected.length}`;
-        gridEl.innerHTML = "";
+      statusEl.textContent = `Artists in planner: ${selected.length}`;
+      gridEl.innerHTML = "";
 
-        selected.forEach((artist) => {
+      selected.forEach((artist) => {
         const card = document.createElement("article");
         card.className = 
           "w-full max-w-xs bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex flex-col";
 
-        // Image Header
+        // Header
         const header = document.createElement("div");
         header.className = "relative h-40 overflow-hidden bg-slate-900";
 
         if (artist.image) {
-            const bg = document.createElement("img");
-            bg.src = artist.image;
-            bg.alt = "";
-            bg.setAttribute("aria-hidden", "true");
-            bg.className = 
-              "absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-40";
-            header.appendChild(bg);
-
-            const fg = document.createElement("img");
-            fg.src = artist.image;
-            fg.alt = artist.name;
-            fg.className = 
-              "absolute inset-0 w-full h-full object-contain p-3";
-            header.appendChild(fg);
+          const img = document.createElement("img");
+          img.src = artist.image;
+          img.alt = artist.name;
+          img.className = "absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-40";
+          header.appendChild(img);
         }
-
-        const overlay = document.createElement("div");
-        overlay.className = 
-          "absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent";
-        header.appendChild(overlay);
-
-        const titleWrap = document.createElement("div");
-        titleWrap.className = "absolute bottom-0 left-0 right-0 p-3";
-        titleWrap.innerHTML = `
-          <h2 class="text-base font-semibold text-slate-100 drop-shadow-md">
-            ${artist.name}
-          </h2>
-        `;
-        header.appendChild(titleWrap);
 
         card.appendChild(header);
 
         // Body
         const body = document.createElement("div");
         body.className = "p-4 flex flex-col gap-1";
-
+        
         body.innerHTML = `
-          <p class="text-xs text-slate-300">
-            ${artist.genre} . ${artist.location}
-          </p>
+          <p class="text-xs text-slate-300">${artist.genre} . ${artist.location}</p>
           <p class="text-xs text-slate-300">Rate: ${artist.rateTier}</p>
         `;
 
@@ -172,34 +127,29 @@ const artistsJSON = JSON.stringify(artists);
 
         const details = document.createElement("a");
         details.href = `/artists/${artist.slug}`;
-        details.className = 
-          "flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-x font-medium text-center";
+        details.className = "flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-x font-medium text-center";
         details.textContent = "Details";
-        
+
         const remove = document.createElement("button");
-        remove.className = 
-          "bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg text-xs font-medium";
+        remove.className = "bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg text-xs font-medium";
         remove.textContent = "Remove";
-        remove.addEventListener("click", () => {
-          removeFromShortlist(artist.slug);
-        });
+        remove.addEventListener("click", () => removeFromShortlist(artist.slug));
 
         actions.appendChild(details);
         actions.appendChild(remove);
 
         body.appendChild(actions);
         card.appendChild(body);
-
+       
         gridEl.appendChild(card);
-        });
+      });
+    }
 
-  clearBtn?.addEventListener("click", () => {
+    clearBtn?.addEventListener("click", () => {
       saveShortlist([]);
       render();
-  });
+    });
 
     render();
   </script>
 </BaseLayout>
-
-

@@ -104,4 +104,56 @@ const STORAGE_KEY = "gigconnect-shortlist"
       </div>
     </div>
   </section>
+
+  <!-- Client-side script -->
+  <script type="module" client:load>
+    const STORAGE_KEY = "gigconnect-shortlist";
+    const statusEl = document.getElementById("planner-status")
+    const addBtn = document.getElementById("add-to-planner");
+    const removeBtn = document.getElementById("remove-from-planner")
+
+    const slug = addBtn?.dataset.slug || removeBtn?.dataset.slug || "";
+
+    function getShortlist() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveShortlist(slugs) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs));
+    }
+
+    function updateStatus(message) {
+      if (statusEl) statusEl.textContent = message;
+    }
+
+    addBtn?.addEventListener("click", () => {
+      if (!slug) return;
+      const shortlist = getShortlist();
+      if (!shortlist.includes(slug)) {
+        shortlist.push(slug);
+        saveShortlist(shortlist);
+        updateStatus("Added to planner ✅");
+      } else {
+        updateStatus("Already in planner ⚠️");
+      }
+    });
+
+    removeBtn?.addEventListener("click", () => {
+      if (!slug) return;
+      const shortlist = getShortlist().filter(s => s !== slug);
+      saveShortlist(shortlist);
+      updateStatus("Removed from planner ❌");
+    });
+
+    // Optional: show current status on load
+    const initialShortlist = getShortlist();
+    if (slug && initialShortlist.includes(slug)) {
+      updateStatus("Already in planner ⚠️");
+    }
+  </script>
 </BaseLayout>
