@@ -6,10 +6,7 @@ import type { Artist } from "../../types/Artists";
 
 const artists = artistsData as Artist[];
 
-function byTag (tag: string) {
-  return artists.filter((a) => a.tags?.includes(tag));
-}
-
+// Curated Sections
 const sections: { title: string; tag: string; subtitle: string } [] = [
   { title: "Top Artists", tag: "top", subtitle: "Curated picks for headline-ready bookings." },
   { title: "Electronic & Dance", tag: "electronic", subtitle: "Club forward DJs and electronic performers." },
@@ -27,13 +24,17 @@ function unique(list: Artist[]) {
     return true;
   });
 }
+
+function byTag (tag: string) {
+  return artists.filter((a) => a.tags?.includes(tag));
+}
 ---
 
 <BaseLayout title="GigConnect - Artists">
   <section class="mb-8">
     <h1 class="text-2xl font-bold mb-1">Artists</h1>
     <p class=" text-sm text-slate-300">
-      Browse curated sections, then click into an artist for details.
+      Browse curated sections, then click into an artist for details or add them directly to your planner.
     </p>
   </section>
 
