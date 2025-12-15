@@ -1,27 +1,35 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import artistsData from "../data/artists.json";
-
 ---
 
 <BaseLayout title="GigConnect - Planner">
+  <!-- Header -->
   <section class="mb-8">
     <h1 class="text-2xl font-bold mb-1">Planner</h1>
     <p class="text-sm text-slate-300">
-      Your shortlist of artists to consider for booking. Add artists from their detail pages.
+      Your shortlist of artists to consider for booking.
     </p>
   </section>
 
-  <!-- Status / empty state message -->
   <p id="planner-status" class="text-slate-300 text-sm mb-6"></p>
 
-  <!-- Artist grid -->
+  <!-- Artist Pool -->
   <div
     id="planner-grid"
     class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 place-items-center"
   ></div>
 
-  <!-- Buttons -->
+  <!-- Stages -->
+  <section class="mt-10">
+    <h2 class="text-xl font-bold mb-4">Stages</h2>
+    <div
+      id="stages-board"
+      class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+    ></div>
+  </section>
+
+  <!-- Actions -->
   <div class="mt-8 flex gap-3">
     <button
       id="clear-shortlist"
@@ -31,124 +39,247 @@ import artistsData from "../data/artists.json";
     </button>
   </div>
 
-  <!-- Client-side script -->
-  <script
-    type="module"
-    client:load
-    define:vars={{ artistsData }}
+  <!-- Time Modal -->
+  <div
+    id="time-modal"
+    class="fixed inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300"
   >
-    const STORAGE_KEY = "gigconnect-shortlist";
+    <!-- transparent blurred background -->
+    <div id="modal-overlay" class="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"></div>
 
-    const statusEl = document.getElementById("planner-status");
+    <div class="relative bg-slate-900 p-6 rounded-xl w-[420px] max-w-full z-10 shadow-xl">
+      <h3 class="text-white font-semibold mb-4 text-center">Select a Time</h3>
+      <div
+        id="time-buttons"
+        class="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto"
+      ></div>
+      <button
+        id="close-modal"
+        class="mt-4 w-full bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- JSON -->
+  <script
+    id="artists-data"
+    type="application/json"
+    set:html={JSON.stringify(artistsData)}
+  ></script>
+
+  <!-- Client Script -->
+  <script type="module" client:load>
+    const allArtists = JSON.parse(
+      document.getElementById("artists-data").textContent
+    );
+
+    const venues = [
+      { stageId: "nova-prime", name: "Nova Prime" },
+      { stageId: "pulse-arena", name: "Pulse Arena" },
+      { stageId: "lunar-hall", name: "Lunar Hall" },
+      { stageId: "nova-second", name: "Nova Second" }
+    ];
+
+    const STORAGE_KEY = "gigconnect-shortlist";
+    const STAGE_KEY = "gigconnect-stage-assignments";
+
     const gridEl = document.getElementById("planner-grid");
+    const stageBoard = document.getElementById("stages-board");
+    const statusEl = document.getElementById("planner-status");
     const clearBtn = document.getElementById("clear-shortlist");
 
-    const allArtists = artistsData;
-  
-    function getShortlist() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
-      } catch {
-        return [];
+    const modal = document.getElementById("time-modal");
+    const timeButtons = document.getElementById("time-buttons");
+    const closeModalBtn = document.getElementById("close-modal");
+    const overlay = document.getElementById("modal-overlay");
+
+    let selectedArtistSlug = null;
+    let selectedStageId = null;
+
+    /* STORAGE */
+    const getShortlist = () =>
+      JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    const saveShortlist = list =>
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+
+    const getAssignments = () =>
+      JSON.parse(localStorage.getItem(STAGE_KEY)) || {};
+
+    const saveAssignments = data =>
+      localStorage.setItem(STAGE_KEY, JSON.stringify(data));
+
+    /* TIME SLOTS */
+    function generateTimeSlots() {
+      const slots = [];
+      let hour = 13;
+      let minute = 0;
+
+      while (hour < 23 || (hour === 23 && minute === 0)) {
+        const displayHour = hour % 12 || 12;
+        const displayMinute = minute.toString().padStart(2, "0");
+        slots.push(`${displayHour}:${displayMinute} PM`);
+
+        minute += 15;
+        if (minute === 60) {
+          minute = 0;
+          hour++;
+        }
       }
+      return slots;
     }
 
-    function saveShortlist(slugs) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs));
+    function getUsedTimes(stageId) {
+      const assignments = getAssignments();
+      return Object.values(assignments)
+        .filter(a => a.stage === stageId)
+        .map(a => a.time);
     }
 
-    function removeFromShortlist(slug) {
-      const updated = getShortlist().filter((s) => s !== slug);
-      saveShortlist(updated);
-      render();
-    }
+    /* MODAL */
+    function openTimeModal() {
+      timeButtons.innerHTML = "";
+      const usedTimes = getUsedTimes(selectedStageId);
 
-    function renderEmpty() {
-      if (statusEl) { 
-        statusEl.textContent =
-        "Your shortlist is empty. Browse artists to add them here.";
-      }
-      if (gridEl) gridEl.innerHTML = "";
-    }
+      generateTimeSlots().forEach(time => {
+        const used = usedTimes.includes(time);
+        const btn = document.createElement("button");
 
-    function render() {
-      if (!statusEl || !gridEl) return;
+        btn.textContent = time;
+        btn.className =
+          "px-2 py-1 rounded text-xs font-medium " +
+          (used
+            ? "bg-slate-600 text-slate-300 cursor-not-allowed"
+            : "bg-indigo-600 hover:bg-indigo-500 text-white");
 
-      const shortlist = getShortlist();
+        btn.disabled = used;
 
-      if (shortlist.length === 0) {
-        renderEmpty();
-        return;
-      }
-
-      const selected = shortlist
-        .map(slug => allArtists.find(a => a.slug === slug))
-        .filter(Boolean);
-
-      if (selected.length === 0) {
-        renderEmpty();
-        return;
-      }
-
-      statusEl.textContent = `Artists in planner: ${selected.length}`;
-      gridEl.innerHTML = "";
-
-      selected.forEach((artist) => {
-        const card = document.createElement("article");
-        card.className = 
-          "w-full max-w-xs bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex flex-col";
-
-        // Header
-        const header = document.createElement("div");
-        header.className = "relative h-40 overflow-hidden bg-slate-900";
-
-        if (artist.image) {
-          const img = document.createElement("img");
-          img.src = artist.image;
-          img.alt = artist.name;
-          img.className = "absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-40";
-          header.appendChild(img);
+        if (!used) {
+          btn.onclick = () => {
+            const assignments = getAssignments();
+            assignments[selectedArtistSlug] = {
+              stage: selectedStageId,
+              time
+            };
+            saveAssignments(assignments);
+            closeTimeModal();
+            render();
+          };
         }
 
-        card.appendChild(header);
+        timeButtons.appendChild(btn);
+      });
 
-        // Body
-        const body = document.createElement("div");
-        body.className = "p-4 flex flex-col gap-1";
-        
-        body.innerHTML = `
-          <p class="text-xs text-slate-300">${artist.genre} . ${artist.location}</p>
-          <p class="text-xs text-slate-300">Rate: ${artist.rateTier}</p>
+      modal.classList.remove("opacity-0", "pointer-events-none");
+    }
+
+    function closeTimeModal() {
+      modal.classList.add("opacity-0", "pointer-events-none");
+      selectedArtistSlug = null;
+      selectedStageId = null;
+    }
+
+    overlay.onclick = closeTimeModal;
+    closeModalBtn.onclick = closeTimeModal;
+
+    /* RENDER POOL */
+    function renderPool() {
+      const shortlist = getShortlist();
+      const assignments = getAssignments();
+      gridEl.innerHTML = "";
+
+      const available = shortlist.filter(slug => !assignments[slug]);
+
+      if (shortlist.length === 0) {
+        statusEl.textContent = "Your shortlist is empty.";
+        clearBtn.style.display = "none";
+        return;
+      }
+
+      statusEl.textContent = `Artists in planner: ${shortlist.length}`;
+      clearBtn.style.display = "inline-flex";
+
+      available.forEach(slug => {
+        const artist = allArtists.find(a => a.slug === slug);
+        if (!artist) return;
+
+        const card = document.createElement("article");
+        card.className =
+          "w-full max-w-xs bg-slate-800 border border-slate-700 rounded-xl p-4 cursor-pointer";
+
+        card.innerHTML = `
+          <p class="font-semibold text-sm">${artist.name}</p>
+          <p class="text-xs text-slate-300">${artist.genre}</p>
         `;
 
-        const actions = document.createElement("div");
-        actions.className = "mt-3 flex gap-2";
+        card.onclick = () => {
+          selectedArtistSlug = slug;
+          render();
+        };
 
-        const details = document.createElement("a");
-        details.href = `/artists/${artist.slug}`;
-        details.className = "flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-x font-medium text-center";
-        details.textContent = "Details";
-
-        const remove = document.createElement("button");
-        remove.className = "bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg text-xs font-medium";
-        remove.textContent = "Remove";
-        remove.addEventListener("click", () => removeFromShortlist(artist.slug));
-
-        actions.appendChild(details);
-        actions.appendChild(remove);
-
-        body.appendChild(actions);
-        card.appendChild(body);
-       
         gridEl.appendChild(card);
       });
     }
 
-    clearBtn?.addEventListener("click", () => {
+    /* RENDER STAGES */
+    function renderStages() {
+      stageBoard.innerHTML = "";
+      const assignments = getAssignments();
+
+      venues.forEach(stage => {
+        const stageEl = document.createElement("div");
+        stageEl.className =
+          "bg-slate-800 p-4 rounded-lg min-h-[180px]";
+
+        stageEl.innerHTML = `<h3 class="font-semibold mb-2">${stage.name}</h3>`;
+
+        Object.entries(assignments).forEach(([slug, info]) => {
+          if (info.stage !== stage.stageId) return;
+          const artist = allArtists.find(a => a.slug === slug);
+          if (!artist) return;
+
+          const item = document.createElement("div");
+          item.className =
+            "bg-indigo-600 text-white px-2 py-1 rounded mb-1 flex justify-between text-xs";
+
+          item.innerHTML = `
+            <span>${artist.name} (${info.time})</span>
+            <button class="text-red-200">✕</button>
+          `;
+
+          item.querySelector("button").onclick = () => {
+            const a = getAssignments();
+            delete a[slug];
+            saveAssignments(a);
+            render();
+          };
+
+          stageEl.appendChild(item);
+        });
+
+        if (selectedArtistSlug) {
+          stageEl.classList.add("ring-2", "ring-indigo-400", "cursor-pointer");
+          stageEl.onclick = () => {
+            selectedStageId = stage.stageId;
+            openTimeModal();
+          };
+        }
+
+        stageBoard.appendChild(stageEl);
+      });
+    }
+
+    clearBtn.onclick = () => {
       saveShortlist([]);
       render();
-    });
+    };
+
+    function render() {
+      renderPool();
+      renderStages();
+    }
 
     render();
   </script>
