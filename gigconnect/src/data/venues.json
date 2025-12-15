@@ -1,0 +1,22 @@
+[
+  {
+    "stageId": "nove-prime", 
+    "name": "Nova Prime", 
+    "capacity": 8000
+  },
+  {
+    "stageId": "pulse-arena",
+    "name": "Pulse Arena", 
+    "capacity": 3500
+  },
+  {
+    "stageId": "lunar-hall",
+    "name": "Lunar Hall", 
+    "capacity": 1500
+  },
+  {
+    "stageId": "nove-second",
+    "name": "Nova Prime",
+    "capacity": 500
+  }
+]
