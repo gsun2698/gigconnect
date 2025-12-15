@@ -114,6 +114,16 @@ const STORAGE_KEY = "gigconnect-shortlist"
 
     const slug = addBtn?.dataset.slug || removeBtn?.dataset.slug || "";
 
+    if (slug) {
+      const inPlanner = getShortlist().includes(slug);
+      updateButtons(inPlanner);
+    }
+
+    function updateButtons(inPlanner) {
+      if (addBtn) addBtn.style.display = inPlanner ? "none" : "inline-flex";
+      if (removeBtn) removeBtn.style.display = inPlanner ? "inline-flex" : "none";
+    }
+    
     function getShortlist() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -132,28 +142,34 @@ const STORAGE_KEY = "gigconnect-shortlist"
     }
 
     addBtn?.addEventListener("click", () => {
+      if (!addBtn || !removeBtn) return;
+      addBtn.disabled = true;
+      const slug = addBtn.dataset.slug;
       if (!slug) return;
       const shortlist = getShortlist();
       if (!shortlist.includes(slug)) {
         shortlist.push(slug);
         saveShortlist(shortlist);
         updateStatus("Added to planner ✅");
+        updateButtons(true);
       } else {
         updateStatus("Already in planner ⚠️");
       }
+
+      removeBtn.disabled = false;
     });
 
     removeBtn?.addEventListener("click", () => {
+      if (!addBtn || !removeBtn) return;
+      removeBtn.disabled = true;
+      const slug = removeBtn.dataset.slug;
       if (!slug) return;
       const shortlist = getShortlist().filter(s => s !== slug);
       saveShortlist(shortlist);
       updateStatus("Removed from planner ❌");
-    });
+      updateButtons(false);
 
-    // Optional: show current status on load
-    const initialShortlist = getShortlist();
-    if (slug && initialShortlist.includes(slug)) {
-      updateStatus("Already in planner ⚠️");
-    }
+      addBtn.disabled = false;
+    });
   </script>
 </BaseLayout>
