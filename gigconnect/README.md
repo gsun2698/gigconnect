@@ -1,6 +1,8 @@
 # Final Project
 Bare repo for you to begin your final project
 
+## Website URL
+The live site for this project is deployed at: {https://gigconnect-rgfqsyxfl-gus-projects-7874b3fd.vercel.app/planner}
 ## Installation and Running
  1. git clone https://github.com/cscie12/final-project-gsun2698.git
    - cd final-project-gsun2698
