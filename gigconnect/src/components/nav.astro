@@ -1,19 +1,23 @@
-<nav class="flex items-center justify-between px-6 py-4">
+<nav class="flex items-center justify-between px-6 py-4 relative bg-slate-900 shadow-md z-50">
   <!-- Logo -->
-   <a href="/" class="text-xl font-bold text-indigo-400">
-    GigConnect
-  </a>
+  <a href="/" class="text-xl font-bold text-indigo-400 z-50">GigConnect</a>
 
-  <!-- Navigation links -->
-   <ul class="flex gap-6 text-slate-300">
-    <li>
-      <a href="/artists" class="hover:text-indigo-400 transition-colors">Artists</a>
-    </li>
-     <li>
-      <a href="/planner" class="hover:text-indigo-400 transition-colors">Planner</a>
-    </li>
-     <li>
-      <a href="/about" class="hover:text-indigo-400 transition-colors">About</a>
-    </li>
-   </ul>
+  <!-- Desktop Navigation -->
+  <ul class="hidden md:flex gap-6 text-slate-300 z-50">
+    <li><a href="/artists" class="hover:text-indigo-400 transition">Artists</a></li>
+    <li><a href="/planner" class="hover:text-indigo-400 transition">Planner</a></li>
+    <li><a href="/about" class="hover:text-indigo-400 transition">About</a></li>
+  </ul>
+
+  <!-- Mobile Hamburger Menu -->
+  <details class="md:hidden relative z-50">
+    <summary class="cursor-pointer text-slate-300 text-2xl select-none">☰</summary>
+    <div class="top-full right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-md shadow-lg">
+      <ul class="flex-col gap-3 py-3 px-4 text-slate-300">
+        <li><a href="/artists" class="hover:text-indigo-400 transition block w-full">Artists</a></li>
+        <li><a href="/planner" class="hover:text-indigo-400 transition block w-full">Planner</a></li>
+        <li><a href="/about" class="hover:text-indigo-400 transition block w-full">About</a></li>
+      </ul>
+    </div>
+  </details>
 </nav>

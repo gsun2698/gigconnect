@@ -1,18 +1,22 @@
 ---
-import artists from "../../data/artists.json"
+import artists from "../../data/artists.json";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 // Generate a static page for each artist based on slug
 export function getStaticPaths() {
+  // Maps each artist to a route based on their slug
   return artists.map((a) => ({
     params: { slug: a.slug },
   }));
 }
 
+// Extract the slug from the current page parameters
 const { slug } = Astro.params;
 
-// Find the artist by slug
+// Find the artist object that matches the slug
 const artist = artists.find((a) => a.slug === slug);
+
+// Throw an error if no artist is found for the given slug
 if (!artist) {
   throw new Error(`Artist not found for slug: ${slug}`);
 }
@@ -20,21 +24,23 @@ if (!artist) {
 
 <BaseLayout title={`GigConnect - ${artist.name}`}>
 
-  <!-- Top nav -->
+  <!-- Navigation Back Link -->
   <section class="mb-6 flex items-center justify-between gap-4">
     <a href="/artists" class="text-lg text-slate-300 hover:text-indigo-400 transition-colors">
       &larr; Back to Artists
     </a>
   </section>
 
-  <!-- Artist Header -->
+  <!-- Artist Header Section with Image and Overlay -->
   <section class="relative w-full h-96 sm:h-[28rem] rounded-3xl overflow-hidden shadow-lg">
     {artist.image && (
       <img src={artist.image} alt={artist.name} class="absolute inset-0 w-full h-full object-contain brightness-75"/>
     )}
+
+    <!-- Gradient overlay for readability of text on image -->
     <div class="absolute inset-0 bg-gradient-to-t from-slate-800/90 to-transparent"></div>
 
-    <!-- Name & Genre overlay -->
+    <!-- Artist Name and Genre overlay -->
     <div class="absolute bottom-6 left-6 text-white">
       <h1 class="text-4xl sm:text-5xl font-extrabold drop-shadow-lg">{artist.name}</h1>
       <p class="mt-1 text-sm sm:text-base text-slate-200 drop-shadow">{artist.genre} · {artist.location}</p>
@@ -44,36 +50,32 @@ if (!artist) {
   <!-- Artist Details Grid -->
   <section class="mt-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-    <!-- Description + Social -->
+    <!-- Description and Social Links -->
     <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-6">
       <p class="text-slate-300 text-lg leading-relaxed">
         {artist.description}
       </p>
 
+      <!-- Social buttons (demo only, not functional) -->
       <div class="flex flex-wrap gap-4 items-center">
-        <a href="#"
-           title="Website not available for demo"
-           class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium cursor-not-allowed">
+        <a href="#" title="Website not available for demo" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium cursor-not-allowed">
           🌐 Website
         </a>
-        <a href="#"
-           title="Instagram link not available for demo"
-           class="px-4 py-2 bg-pink-500 hover:bg-pink-400 text-white rounded-lg text-sm font-medium cursor-not-allowed">
+        <a href="#" title="Instagram link not available for demo" class="px-4 py-2 bg-pink-500 hover:bg-pink-400 text-white rounded-lg text-sm font-medium cursor-not-allowed">
           📸 Instagram
         </a>
-        <a href="#"
-           title="Spotify link not available for demo"
-           class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium cursor-not-allowed">
+        <a href="#" title="Spotify link not available for demo" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium cursor-not-allowed">
           🎵 Spotify
         </a>
       </div>
     </div>
 
-    <!-- Tour Dates -->
+    <!-- Upcoming Tour Dates -->
     <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-4">
       <h2 class="text-2xl font-bold text-white">Upcoming Tour Dates</h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Each tour date card -->
         <div class="bg-slate-700/60 p-4 rounded-lg">
           <p class="font-semibold text-white">Dec 20, 2025</p>
           <p class="text-slate-300 text-sm">The Neon Arena · Los Angeles, CA</p>
@@ -93,7 +95,7 @@ if (!artist) {
       </div>
     </div>
 
-    <!-- Management -->
+    <!-- Management & Booking Info -->
     <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-6">
       <h2 class="text-2xl font-bold text-white">Management & Booking</h2>
 
@@ -121,11 +123,12 @@ if (!artist) {
       </p>
     </div>
 
-    <!-- Reviews -->
+    <!-- Reviews Section -->
     <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-6">
       <h2 class="text-2xl font-bold text-white">What Bookers Are Saying</h2>
 
       <div class="space-y-4">
+        <!-- Each review card -->
         <div class="bg-slate-700/60 p-5 rounded-xl">
           <div class="text-yellow-400 text-sm mb-1">★★★★★</div>
           <p class="text-slate-200">
@@ -149,8 +152,9 @@ if (!artist) {
     </div>
   </section>
 
-  <!-- Planner Actions -->
+  <!-- Planner Actions: Add/Remove artist buttons -->
   <section class="mt-10 justify-center max-w-4xl mx-auto flex flex-wrap gap-6">
+    <!-- Add artist to planner -->
     <button 
       id="add-to-planner" 
       data-slug={artist.slug} 
@@ -160,15 +164,17 @@ if (!artist) {
       Add to Planner
     </button>
 
+    <!-- Remove artist from planner -->
     <button 
       id="remove-from-planner" 
       data-slug={artist.slug} 
-      class="bg-slate-700 hover:bg-slate-600 text-white px-20 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:scale-105 transform"
+      class="bg-slate-700 hover:bg-slate-600 cursor-pointer text-white px-20 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:scale-105 transform"
       title="Remove this artist from your planner"
     >
       Remove
     </button>
 
+    <!-- Booking button (not functional in demo) -->
     <button
       id="book-artist"
       class="bg-indigo-800 hover:bg-indigo-600 text-white px-20 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:scale-105 transform cursor-not-allowed"
@@ -178,24 +184,29 @@ if (!artist) {
     </button>
   </section>
 
-  <!-- Client Script for Planner -->
-  <script type="module" client:load>
-    const STORAGE_KEY = "gigconnect-shortlist";
-    const STAGE_KEY = "gigconnect-stage-assignments";
+  <!-- Client-side Planner Script -->
+  <!-- Manages adding/removing artist from planner using localStorage -->
+  <script type="module">
+    const STORAGE_KEY = "gigconnect-shortlist"; // key for storing planner list
+    const STAGE_KEY = "gigconnect-stage-assignments"; // key for storing stage assignments
     const addBtn = document.getElementById("add-to-planner");
     const removeBtn = document.getElementById("remove-from-planner");
     const slug = addBtn?.dataset.slug || removeBtn?.dataset.slug || "";
 
+    // Retrieve current shortlist from localStorage
     function getShortlist() {
       try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
     }
 
+    // Save shortlist to localStorage
     function saveShortlist(slugs) { localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs)); }
 
+    // Get assignments from localStorage
     function getAssignments() {
       try { const raw = localStorage.getItem(STAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
     }
 
+    // Update button visibility and disabled states
     function updateButtons() {
       const shortlist = getShortlist();
       const assignments = getAssignments();
@@ -203,18 +214,20 @@ if (!artist) {
       const assignedToStage = assignments[slug] !== undefined;
 
       if (addBtn) {
-        addBtn.style.display = inPlanner ? "none" : "inline-flex";
-        addBtn.disabled = assignedToStage;
+        addBtn.style.display = inPlanner ? "none" : "inline-flex"; // hide if already in planner
+        addBtn.disabled = assignedToStage; // disable if assigned to stage
       }
 
       if (removeBtn) {
-        removeBtn.style.display = inPlanner ? "inline-flex" : "none";
+        removeBtn.style.display = inPlanner ? "inline-flex" : "none"; // show only if in planner
         removeBtn.disabled = assignedToStage;
       }
     }
 
+    // Initial button setup
     updateButtons();
 
+    // Add artist to planner
     addBtn?.addEventListener("click", () => {
       const shortlist = getShortlist();
       if (!shortlist.includes(slug)) {
@@ -224,9 +237,10 @@ if (!artist) {
       }
     });
 
+    // Remove artist from planner
     removeBtn?.addEventListener("click", () => {
       const assignments = getAssignments();
-      if (assignments[slug]) return;
+      if (assignments[slug]) return; // do not remove if artist is assigned to stage
       const shortlist = getShortlist().filter(s => s !== slug);
       saveShortlist(shortlist);
       updateButtons();

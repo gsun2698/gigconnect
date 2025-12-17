@@ -68,7 +68,7 @@
     "location": "Atlanta, GA",
     "rateTier": "$$$",
     "image": "../images/artists/rhymewolf.png",
-    "description": "Crows-hyping rapper with DJ-backed set and interactive call-and-response moments",
+    "description": "Crowd-hyping rapper with DJ-backed set and interactive call-and-response moments",
     "tags": ["popular", "top"]
   },
   {
@@ -88,7 +88,7 @@
     "location": "San Diego, CA",
     "rateTier": "$",
     "image": "../images/artists/coastalacoustic.png",
-    "description": "EEasygoing acoustic duo for patios, brunch sets, and small-room events",
+    "description": "Easygoing acoustic duo for patios, brunch sets, and small-room events",
     "tags": ["budget", "emerging", "band"]
   },
   {
@@ -118,7 +118,7 @@
     "location": "Seattle, WA",
     "rateTier": "$$",
     "image": "../images/artists/sunsetserenade.png",
-    "description": "Pop act with upbeat coverss and original-great for community events and festivals",
+    "description": "Pop act with upbeat covers and original-great for community events and festivals",
     "tags": ["emerging", "budget"]
   }
 ]

@@ -4,10 +4,12 @@ import ArtistCard from "../../components/ArtistCard.astro";
 import artistsData from "../../data/artists.json";
 import type { Artist } from "../../types/Artists";
 
+// Cast imported data to the Artist type
 const artists = artistsData as Artist[];
 
-// Curated Sections
-const sections: { title: string; tag: string; subtitle: string } [] = [
+// Define curated sections for the artists page
+// Each section has a title, a tag to filter artists, and a subtitle
+const sections: { title: string; tag: string; subtitle: string }[] = [
   { title: "Top Artists", tag: "top", subtitle: "Curated picks for headline-ready bookings." },
   { title: "Electronic & Dance", tag: "electronic", subtitle: "Club forward DJs and electronic performers." },
   { title: "Most Popular", tag: "popular", subtitle: "High-demanding acts trending with venues and promoters" },
@@ -15,53 +17,66 @@ const sections: { title: string; tag: string; subtitle: string } [] = [
   { title: "Emerging & Budget-Friendly", tag: "budget", subtitle: "Great option for smaller rooms and tighter budgets." },
 ];
 
-// Prevent repeats across sections
+// Track which artists have been used in sections to prevent duplicates
 const used = new Set<string>();
+
+// Filter function to get unique artists for each section
 function unique(list: Artist[]) {
-  return list.filter((a) =>{
-    if (used.has(a.slug)) return false;
-    used.add(a.slug);
+  return list.filter((a) => {
+    if (used.has(a.slug)) return false; // skip if already used
+    used.add(a.slug); // mark as used
     return true;
   });
 }
 
-function byTag (tag: string) {
+// Filter artists by tag
+function byTag(tag: string) {
   return artists.filter((a) => a.tags?.includes(tag));
 }
 ---
 
 <BaseLayout title="GigConnect - Artists">
+
+  <!-- Page Header Section -->
   <section 
-    class=" relative mb-12 py-5 px-6 rounded-2xl 
-            bg-gradient-to-br from-purple-900/70 via-slate-900 to-purple-900/60 
-            border border-purple-500/30
-            shadow-[0_0_0_1.5px_rgba(168,85,247,0.45), 0_10px_30px_-10px_rgba(0,0,0,0.6)]">
+    class="relative mb-12 py-5 px-6 rounded-2xl 
+           bg-gradient-to-br from-purple-900/70 via-slate-900 to-purple-900/60 
+           border border-purple-500/30
+           shadow-[0_0_0_1.5px_rgba(168,85,247,0.45), 0_10px_30px_-10px_rgba(0,0,0,0.6)]">
+    
+    <!-- Decorative horizontal gradient line -->
     <div 
       class="absolute top-0 left-8 right-8 h-px
              bg-gradient-to-r from-transparent via-purple-400/70 to-transparent">
     </div>
     
+    <!-- Main title -->
     <h1 class="inline-block text-3xl md:text-4xl font-extrabold text-white mb-6 pb-2 border-b border-gray-500 tracking-tight">
       Artists
     </h1>
     
-      <p class="text-slate-300 max-w-2xl font-bold text-xl">
+    <!-- Subtitle / description -->
+    <p class="text-slate-300 max-w-2xl font-bold text-xl">
       Explore the lineup of artists available for booking and build your shortlist for the event planner.
     </p>
   </section>
 
+  <!-- Artists Sections -->
   <div class="space-y-16">
     {sections.map((s) => {
-      const list = unique(byTag(s.tag)).slice(0, 4); // Keep sections tight and consistent
-      if (list.length === 0) return null;
+      // Get up to 4 unique artists for this section
+      const list = unique(byTag(s.tag)).slice(0, 4); 
+      if (list.length === 0) return null; // skip empty sections
       
       return (
-        <section>
+        <section class="bg-slate-800 rounded-2xl p-6 shadow-lg">
+          <!-- Section header -->
           <div class="mb-6">
             <h2 class="text-2xl md:text-3xl font-bold text-white">{s.title}</h2>
             <p class="text-lg text-slate-400 mt-1">{s.subtitle}</p>
           </div>
 
+          <!-- Grid of ArtistCards -->
           <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 place-items-center">
             {list.map((artist) => (
               <ArtistCard artist={artist} />

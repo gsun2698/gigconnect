@@ -4,46 +4,64 @@ import artistsData from "../data/artists.json";
 ---
 
 <BaseLayout title="GigConnect - Planner">
+
+  <!-- Page Header Section -->
   <section 
-    class=" relative mb-15 py-5 px-6 rounded-2xl 
-            bg-gradient-to-br from-purple-900/70 via-slate-900 to-purple-900/60 
-            border border-purple-500/30
-            shadow-[0_0_0_1.5px_rgba(168,85,247,0.45), 0_10px_30px_-10px_rgba(0,0,0,0.6)]">
+    class="relative mb-15 py-5 px-6 rounded-2xl 
+           bg-gradient-to-br from-purple-900/70 via-slate-900 to-purple-900/60 
+           border border-purple-500/30
+           shadow-[0_0_0_1.5px_rgba(168,85,247,0.45), 0_10px_30px_-10px_rgba(0,0,0,0.6)]">
+    
+    <!-- Decorative gradient line -->
     <div 
       class="absolute top-0 left-8 right-8 h-px
              bg-gradient-to-r from-transparent via-purple-400/70 to-transparent">
     </div>
-    
+
+    <!-- Main title -->
     <h1 class="inline-block text-3xl md:text-4xl font-extrabold text-white mb-6 pb-2 border-b border-gray-500 tracking-tight">
       Planner
     </h1>
-    
+
+    <!-- Description -->
     <p class="text-slate-300 max-w-2xl font-bold text-xl">
       Review and organize your shortlisted artists. Select artists to assign them to stages and time slots for your event.
     </p>
   </section>
 
+  <!-- Status message -->
   <p id="planner-status" class="text-slate-300 text-sm mb-6"></p>
 
-  <!-- Artist Pool -->
+  <!-- Artist Pool: shows artists currently in the shortlist -->
   <div
     id="planner-grid"
     class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
   ></div>
 
-  <!-- Stages -->
+  <!-- Stages Section -->
   <section class="max-w-full mx-auto px-6 mt-12">
     <h2 class="text-3xl font-bold mb-12">Stages</h2>
 
+    <!-- Container for all stages -->
     <div
       id="stages-board"
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
     ></div>
+
+    <!-- Single Remove All Artists Button -->
+    <div class="mt-6">
+      <button
+        id="remove-all-artists"
+        class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg cursor-pointer font-medium"
+      >
+        Remove All Artists
+      </button>
+    </div>
   </section>
 
   <div class="mt-8 mb-6 border-t border-slate-600/40"></div>
   
-  <!-- Actions -->
+  <!-- Actions: clear shortlist, save, download -->
   <div class="mt-15 flex gap-3">
     <button
       id="clear-shortlist"
@@ -53,24 +71,25 @@ import artistsData from "../data/artists.json";
     </button>
     <button
       id="download-lineup"
-      class="bg-indigo-500 hover:bg-indigo-300 cursor-pointer px-4 py-2 rounded-lg text-sm font-bold transition"
+      class="bg-indigo-500 hover:bg-indigo-300 px-4 py-2 rounded-lg text-sm font-bold transition transform cursor-not-allowed"
+      title="Downloading not available in demo"
     >Download Lineup</button>
-    </button>
     <button
       id="save-lineup"
-      class="bg-indigo-700 hover:bg-indigo-500 cursor-pointer px-4 py-2 rounded-lg text-sm font-bold transition"
+      class="bg-indigo-700 hover:bg-indigo-500 cursor-not-allowed px-4 py-2 rounded-lg text-sm font-bold transition"
+      title="Saving not available in demo"
     >Save Lineup</button>
-    </button>
   </div>
- 
 
-  <!-- Time Modal -->
+  <!-- Time Selection Modal -->
   <div
     id="time-modal"
     class="fixed inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300"
   >
+    <!-- Background overlay -->
     <div id="modal-overlay" class="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"></div>
 
+    <!-- Modal content -->
     <div class="relative bg-slate-900 p-6 rounded-xl w-[420px] max-w-full z-10 shadow-xl">
       <h3 class="text-white font-semibold mb-4 text-center">Select a Time</h3>
       <div
@@ -86,17 +105,19 @@ import artistsData from "../data/artists.json";
     </div>
   </div>
 
-  <!-- JSON -->
+  <!-- Pass artists data from server to client -->
   <script
     id="artists-data"
     type="application/json"
     set:html={JSON.stringify(artistsData)}
   ></script>
 
-  <!-- Client Script -->
-  <script type="module" client:load>
+  <!-- Client-side Planner Script -->
+  <script type="module">
+    // Load all artists
     const allArtists = JSON.parse(document.getElementById("artists-data").textContent);
 
+    // Define stages/venues
     const venues = [
       { stageId: "nova-prime", name: "Nova Prime" },
       { stageId: "pulse-arena", name: "Pulse Arena" },
@@ -104,13 +125,15 @@ import artistsData from "../data/artists.json";
       { stageId: "nova-second", name: "Nova Second" }
     ];
 
+    // Keys for localStorage
     const STORAGE_KEY = "gigconnect-shortlist";
     const STAGE_KEY = "gigconnect-stage-assignments";
 
+    // DOM Elements
     const gridEl = document.getElementById("planner-grid");
     const stageBoard = document.getElementById("stages-board");
-    const statusEl = document.getElementById("planner-status");
     const clearBtn = document.getElementById("clear-shortlist");
+    const removeAllBtn = document.getElementById("remove-all-artists");
 
     const modal = document.getElementById("time-modal");
     const timeButtons = document.getElementById("time-buttons");
@@ -120,11 +143,13 @@ import artistsData from "../data/artists.json";
     let selectedArtistSlug = null;
     let selectedStageId = null;
 
+    // LocalStorage helpers
     const getShortlist = () => JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     const saveShortlist = list => localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
     const getAssignments = () => JSON.parse(localStorage.getItem(STAGE_KEY)) || {};
     const saveAssignments = data => localStorage.setItem(STAGE_KEY, JSON.stringify(data));
 
+    // Convert time string to minutes for sorting
     function timeToMinutes(time) {
       const [hm, period] = time.split(" ");
       let [hour, minute] = hm.split(":").map(Number);
@@ -133,6 +158,7 @@ import artistsData from "../data/artists.json";
       return hour * 60 + minute;
     }
 
+    // Generate 15-minute time slots between 1PM-11PM
     function generateTimeSlots() {
       const slots = [];
       let hour = 13;
@@ -150,6 +176,7 @@ import artistsData from "../data/artists.json";
       return slots;
     }
 
+    // Get used times for a stage to prevent overlaps
     function getUsedTimes(stageId) {
       const assignments = getAssignments();
       return Object.values(assignments)
@@ -157,6 +184,7 @@ import artistsData from "../data/artists.json";
         .map(a => a.time);
     }
 
+    // Open time selection modal for assigning artist to stage
     function openTimeModal() {
       if (!selectedArtistSlug || !selectedStageId) return;
 
@@ -168,6 +196,7 @@ import artistsData from "../data/artists.json";
         const used = usedTimes.includes(time);
         const hour = time.split(":")[0];
 
+        // Optional divider for new hour blocks
         if (hour !== lastHour) {
           const divider = document.createElement("div");
           divider.className = "col-span-3 border-t border-slate-700 my-1";
@@ -187,6 +216,7 @@ import artistsData from "../data/artists.json";
 
         if (!used) {
           btn.onclick = () => {
+            // Assign artist to selected stage and time
             const assignments = getAssignments();
             assignments[selectedArtistSlug] = { stage: selectedStageId, time };
             saveAssignments(assignments);
@@ -215,14 +245,13 @@ import artistsData from "../data/artists.json";
     overlay.onclick = closeTimeModal;
     closeModalBtn.onclick = closeTimeModal;
 
+    // Render artist pool (shortlisted artists not yet assigned)
     function renderPool() {
       const shortlist = getShortlist();
       const assignments = getAssignments();
       gridEl.innerHTML = "";
 
-      // Filter out assigned artists from shortlist to avoid duplicates
       const available = shortlist.filter(slug => !assignments[slug]);
-
       clearBtn.style.display = "inline-flex";
 
       available.forEach(slug => {
@@ -264,6 +293,7 @@ import artistsData from "../data/artists.json";
       });
     }
 
+    // Render all stages with assigned artists
     function renderStages() {
       stageBoard.innerHTML = "";
       const assignments = getAssignments();
@@ -289,16 +319,15 @@ import artistsData from "../data/artists.json";
 
           item.innerHTML = `<span>${artist.name} (${info.time})</span><button class="text-red-200">✕</button>`;
 
+          // Remove from stage and return to shortlist
           item.querySelector("button").onclick = () => {
             const assignments = getAssignments();
             delete assignments[slug];
             saveAssignments(assignments);
 
             const shortlist = getShortlist();
-            if (!shortlist.includes(slug)) {
-              shortlist.push(slug);
-              saveShortlist(shortlist);
-            }
+            if (!shortlist.includes(slug)) shortlist.push(slug);
+            saveShortlist(shortlist);
 
             render();
           };
@@ -306,6 +335,7 @@ import artistsData from "../data/artists.json";
           stageEl.appendChild(item);
         });
 
+        // Highlight stage if an artist is selected and unassigned
         const isArtistSelectable =
           selectedArtistSlug && !assignments[selectedArtistSlug];
 
@@ -321,11 +351,28 @@ import artistsData from "../data/artists.json";
       });
     }
 
+    // Clear entire shortlist
     clearBtn.onclick = () => {
       saveShortlist([]);
       render();
     };
 
+    // Remove all artists from all stages back to shortlist
+    removeAllBtn.onclick = () => {
+      const assignments = getAssignments();
+      const shortlist = getShortlist();
+
+      Object.keys(assignments).forEach(slug => {
+        if (!shortlist.includes(slug)) shortlist.push(slug);
+        delete assignments[slug];
+      });
+
+      saveAssignments(assignments);
+      saveShortlist(shortlist);
+      render();
+    };
+
+    // Main render function
     function render() {
       renderPool();
       renderStages();
