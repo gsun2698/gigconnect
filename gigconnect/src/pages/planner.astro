@@ -4,11 +4,22 @@ import artistsData from "../data/artists.json";
 ---
 
 <BaseLayout title="GigConnect - Planner">
-  <!-- Header -->
-  <section class="mb-8">
-    <h1 class="text-2xl font-bold mb-1">Planner</h1>
-    <p class="text-sm text-slate-300">
-      Your shortlist of artists to consider for booking.
+  <section 
+    class=" relative mb-15 py-5 px-6 rounded-2xl 
+            bg-gradient-to-br from-purple-900/70 via-slate-900 to-purple-900/60 
+            border border-purple-500/30
+            shadow-[0_0_0_1.5px_rgba(168,85,247,0.45), 0_10px_30px_-10px_rgba(0,0,0,0.6)]">
+    <div 
+      class="absolute top-0 left-8 right-8 h-px
+             bg-gradient-to-r from-transparent via-purple-400/70 to-transparent">
+    </div>
+    
+    <h1 class="inline-block text-3xl md:text-4xl font-extrabold text-white mb-6 pb-2 border-b border-gray-500 tracking-tight">
+      Planner
+    </h1>
+    
+    <p class="text-slate-300 max-w-2xl font-bold text-xl">
+      Review and organize your shortlisted artists. Select artists to assign them to stages and time slots for your event.
     </p>
   </section>
 
@@ -17,45 +28,58 @@ import artistsData from "../data/artists.json";
   <!-- Artist Pool -->
   <div
     id="planner-grid"
-    class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 place-items-center"
+    class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
   ></div>
 
   <!-- Stages -->
-  <section class="mt-10">
-    <h2 class="text-xl font-bold mb-4">Stages</h2>
+  <section class="max-w-full mx-auto px-6 mt-12">
+    <h2 class="text-3xl font-bold mb-12">Stages</h2>
+
     <div
       id="stages-board"
-      class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
     ></div>
   </section>
 
+  <div class="mt-8 mb-6 border-t border-slate-600/40"></div>
+  
   <!-- Actions -->
-  <div class="mt-8 flex gap-3">
+  <div class="mt-15 flex gap-3">
     <button
       id="clear-shortlist"
-      class="bg-slate-700 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-medium"
+      class="bg-slate-700 hover:bg-red-600 cursor-pointer px-4 py-2 rounded-lg text-sm font-medium"
     >
       Clear Shortlist
     </button>
+    <button
+      id="download-lineup"
+      class="bg-indigo-500 hover:bg-indigo-300 cursor-pointer px-4 py-2 rounded-lg text-sm font-bold transition"
+    >Download Lineup</button>
+    </button>
+    <button
+      id="save-lineup"
+      class="bg-indigo-700 hover:bg-indigo-500 cursor-pointer px-4 py-2 rounded-lg text-sm font-bold transition"
+    >Save Lineup</button>
+    </button>
   </div>
+ 
 
   <!-- Time Modal -->
   <div
     id="time-modal"
     class="fixed inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300"
   >
-    <!-- transparent blurred background -->
     <div id="modal-overlay" class="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"></div>
 
     <div class="relative bg-slate-900 p-6 rounded-xl w-[420px] max-w-full z-10 shadow-xl">
       <h3 class="text-white font-semibold mb-4 text-center">Select a Time</h3>
       <div
         id="time-buttons"
-        class="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto"
+        class="space-y-5 space-x-20 max-h-96 overflow-y-auto"
       ></div>
       <button
         id="close-modal"
-        class="mt-4 w-full bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg"
+        class="mt-4 w-full bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg cursor-pointer"
       >
         Cancel
       </button>
@@ -71,244 +95,242 @@ import artistsData from "../data/artists.json";
 
   <!-- Client Script -->
   <script type="module" client:load>
-  const allArtists = JSON.parse(document.getElementById("artists-data").textContent);
+    const allArtists = JSON.parse(document.getElementById("artists-data").textContent);
 
-  const venues = [
-    { stageId: "nova-prime", name: "Nova Prime" },
-    { stageId: "pulse-arena", name: "Pulse Arena" },
-    { stageId: "lunar-hall", name: "Lunar Hall" },
-    { stageId: "nova-second", name: "Nova Second" }
-  ];
+    const venues = [
+      { stageId: "nova-prime", name: "Nova Prime" },
+      { stageId: "pulse-arena", name: "Pulse Arena" },
+      { stageId: "lunar-hall", name: "Lunar Hall" },
+      { stageId: "nova-second", name: "Nova Second" }
+    ];
 
-  const STORAGE_KEY = "gigconnect-shortlist";
-  const STAGE_KEY = "gigconnect-stage-assignments";
+    const STORAGE_KEY = "gigconnect-shortlist";
+    const STAGE_KEY = "gigconnect-stage-assignments";
 
-  const gridEl = document.getElementById("planner-grid");
-  const stageBoard = document.getElementById("stages-board");
-  const statusEl = document.getElementById("planner-status");
-  const clearBtn = document.getElementById("clear-shortlist");
+    const gridEl = document.getElementById("planner-grid");
+    const stageBoard = document.getElementById("stages-board");
+    const statusEl = document.getElementById("planner-status");
+    const clearBtn = document.getElementById("clear-shortlist");
 
-  const modal = document.getElementById("time-modal");
-  const timeButtons = document.getElementById("time-buttons");
-  const closeModalBtn = document.getElementById("close-modal");
-  const overlay = document.getElementById("modal-overlay");
+    const modal = document.getElementById("time-modal");
+    const timeButtons = document.getElementById("time-buttons");
+    const closeModalBtn = document.getElementById("close-modal");
+    const overlay = document.getElementById("modal-overlay");
 
-  let selectedArtistSlug = null;
-  let selectedStageId = null;
+    let selectedArtistSlug = null;
+    let selectedStageId = null;
 
-  /* STORAGE */
-  const getShortlist = () => JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  const saveShortlist = list => localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  const getAssignments = () => JSON.parse(localStorage.getItem(STAGE_KEY)) || {};
-  const saveAssignments = data => localStorage.setItem(STAGE_KEY, JSON.stringify(data));
+    const getShortlist = () => JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    const saveShortlist = list => localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    const getAssignments = () => JSON.parse(localStorage.getItem(STAGE_KEY)) || {};
+    const saveAssignments = data => localStorage.setItem(STAGE_KEY, JSON.stringify(data));
 
-  /* TIME SLOTS */
-  function timeToMinutes(time) {
-    const [hm, period] = time.split(" ");
-    let [hour, minute] = hm.split(":").map(Number);
-    if (period === "PM" && hour !== 12) hour += 12;
-    if (period === "AM" && hour === 12) hour = 0;
-    return hour * 60 + minute;
-  }
-
-  function generateTimeSlots() {
-    const slots = [];
-    let hour = 13;
-    let minute = 0;
-    while (hour < 23 || (hour === 23 && minute === 0)) {
-      const displayHour = hour % 12 || 12;
-      const displayMinute = minute.toString().padStart(2, "0");
-      slots.push(`${displayHour}:${displayMinute} PM`);
-      minute += 15;
-      if (minute === 60) {
-        minute = 0;
-        hour++;
-      }
+    function timeToMinutes(time) {
+      const [hm, period] = time.split(" ");
+      let [hour, minute] = hm.split(":").map(Number);
+      if (period === "PM" && hour !== 12) hour += 12;
+      if (period === "AM" && hour === 12) hour = 0;
+      return hour * 60 + minute;
     }
-    return slots;
-  }
 
-  function getUsedTimes(stageId) {
-    const assignments = getAssignments();
-    return Object.values(assignments)
-      .filter(a => a.stage === stageId)
-      .map(a => a.time);
-  }
-
-  /* MODAL */
-  function openTimeModal() {
-    if (!selectedArtistSlug || !selectedStageId) return;
-
-    timeButtons.innerHTML = "";
-    const usedTimes = getUsedTimes(selectedStageId);
-    let lastHour = null;
-
-    generateTimeSlots().forEach(time => {
-      const used = usedTimes.includes(time);
-      const hour = time.split(":")[0];
-
-      // Hour divider
-      if (hour !== lastHour) {
-        const divider = document.createElement("div");
-        divider.className = "col-span-3 border-t border-slate-700 my-1";
-        timeButtons.appendChild(divider);
-        lastHour = hour;
+    function generateTimeSlots() {
+      const slots = [];
+      let hour = 13;
+      let minute = 0;
+      while (hour < 23 || (hour === 23 && minute === 0)) {
+        const displayHour = hour % 12 || 12;
+        const displayMinute = minute.toString().padStart(2, "0");
+        slots.push(`${displayHour}:${displayMinute} PM`);
+        minute += 15;
+        if (minute === 60) {
+          minute = 0;
+          hour++;
+        }
       }
+      return slots;
+    }
 
-      const btn = document.createElement("button");
-      btn.textContent = time;
-      btn.className =
-        "px-2 py-1 rounded text-xs font-medium " +
-        (used
-          ? "bg-slate-600 text-slate-300 cursor-not-allowed"
-          : "bg-indigo-600 hover:bg-indigo-500 text-white");
+    function getUsedTimes(stageId) {
+      const assignments = getAssignments();
+      return Object.values(assignments)
+        .filter(a => a.stage === stageId)
+        .map(a => a.time);
+    }
 
-      btn.disabled = used;
+    function openTimeModal() {
+      if (!selectedArtistSlug || !selectedStageId) return;
 
-      if (!used) {
-        btn.onclick = () => {
-          const assignments = getAssignments();
-          assignments[selectedArtistSlug] = { stage: selectedStageId, time };
-          saveAssignments(assignments);
-          closeTimeModal();
-          selectedArtistSlug = null; // Clear selection after assignment
-          render();
-        };
-      }
+      timeButtons.innerHTML = "";
+      const usedTimes = getUsedTimes(selectedStageId);
+      let lastHour = null;
 
-      timeButtons.appendChild(btn);
-    });
+      generateTimeSlots().forEach(time => {
+        const used = usedTimes.includes(time);
+        const hour = time.split(":")[0];
 
-    modal.classList.remove("opacity-0", "pointer-events-none");
-  }
+        if (hour !== lastHour) {
+          const divider = document.createElement("div");
+          divider.className = "col-span-3 border-t border-slate-700 my-1";
+          timeButtons.appendChild(divider);
+          lastHour = hour;
+        }
 
-  function closeTimeModal() {
-    modal.classList.add("opacity-0", "pointer-events-none");
-    selectedStageId = null;
-  }
+        const btn = document.createElement("button");
+        btn.textContent = time;
+        btn.className =
+          "px-2 py-1 rounded text-xs font-medium cursor-pointer " +
+          (used
+            ? "bg-slate-600 text-slate-300 cursor-not-allowed"
+            : "bg-indigo-600 hover:bg-indigo-500 text-white");
 
-  overlay.onclick = closeTimeModal;
-  closeModalBtn.onclick = closeTimeModal;
+        btn.disabled = used;
 
-  /* RENDER POOL */
-  function renderPool() {
-    const shortlist = getShortlist();
-    const assignments = getAssignments();
-    gridEl.innerHTML = "";
+        if (!used) {
+          btn.onclick = () => {
+            const assignments = getAssignments();
+            assignments[selectedArtistSlug] = { stage: selectedStageId, time };
+            saveAssignments(assignments);
 
-    const available = shortlist.filter(slug => !assignments[slug]);
+            // Remove artist from shortlist after assignment
+            const shortlist = getShortlist().filter(s => s !== selectedArtistSlug);
+            saveShortlist(shortlist);
 
-    if (shortlist.length === 0) {
-      statusEl.textContent = "Your shortlist is empty.";
+            closeTimeModal();
+            selectedArtistSlug = null;
+            render();
+          };
+        }
+
+        timeButtons.appendChild(btn);
+      });
+
+      modal.classList.remove("opacity-0", "pointer-events-none");
+    }
+
+    function closeTimeModal() {
+      modal.classList.add("opacity-0", "pointer-events-none");
+      selectedStageId = null;
+    }
+
+    overlay.onclick = closeTimeModal;
+    closeModalBtn.onclick = closeTimeModal;
+
+    function renderPool() {
+      const shortlist = getShortlist();
+      const assignments = getAssignments();
       gridEl.innerHTML = "";
-      return;
-    }
 
-    statusEl.textContent = `Artists in planner: ${shortlist.length}`;
-    clearBtn.style.display = "inline-flex";
+      // Filter out assigned artists from shortlist to avoid duplicates
+      const available = shortlist.filter(slug => !assignments[slug]);
 
-    available.forEach(slug => {
-      const artist = allArtists.find(a => a.slug === slug);
-      if (!artist) return;
+      clearBtn.style.display = "inline-flex";
 
-      const card = document.createElement("article");
-      card.className =
-        "w-full max-w-xs bg-slate-800 border border-slate-700 rounded-xl p-4 cursor-pointer";
-
-      // Highlight if selected
-      if (selectedArtistSlug === slug) {
-        card.classList.add("ring-2", "ring-indigo-400");
-      } else {
-        card.classList.remove("ring-2", "ring-indigo-400");
-      }
-
-      card.innerHTML = `
-        <p class="font-semibold text-sm">${artist.name}</p>
-        <p class="text-xs text-slate-300">${artist.genre}</p>
-      `;
-
-      card.onclick = () => {
-        selectedArtistSlug = slug;
-        render();
-      };
-
-      gridEl.appendChild(card);
-    });
-  }
-
-  /* RENDER STAGES */
-  function renderStages() {
-    stageBoard.innerHTML = "";
-    const assignments = getAssignments();
-
-    venues.forEach(stage => {
-      const stageEl = document.createElement("div");
-      stageEl.className = "bg-slate-800 p-4 rounded-lg min-h-[180px]";
-      stageEl.innerHTML = `<h3 class="font-semibold mb-2">${stage.name}</h3>`;
-
-      const stageAssignments = Object.entries(assignments)
-        .filter(([_, info]) => info.stage === stage.stageId)
-        .sort((a, b) => timeToMinutes(a[1].time) - timeToMinutes(b[1].time));
-
-      stageAssignments.forEach(([slug, info]) => {
+      available.forEach(slug => {
         const artist = allArtists.find(a => a.slug === slug);
         if (!artist) return;
 
-        const item = document.createElement("div");
-        item.className =
-          "bg-indigo-600 text-white px-2 py-1 rounded mb-1 flex justify-between text-xs";
+        const card = document.createElement("article");
+        card.className =
+          "w-full bg-slate-800 border border-slate-700 rounded-xl p-5 flex justify-between items-center cursor-pointer";
 
-        item.innerHTML = `
-          <span>${artist.name} (${info.time})</span>
-          <button class="text-red-200">✕</button>
+        const info = document.createElement("div");
+        info.innerHTML = `
+          <p class="font-semibold text-sm">${artist.name}</p>
+          <p class="text-xs text-slate-300">${artist.rateTier}</p>
         `;
+        card.appendChild(info);
 
-        item.querySelector("button").onclick = () => {
-          const assignments = getAssignments();
-          delete assignments[slug];
-          saveAssignments(assignments);
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "✕";
+        removeBtn.className = "ml-4 text-slate-400 font-bold text-lg";
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          const shortlistUpdated = getShortlist().filter(s => s !== slug);
+          saveShortlist(shortlistUpdated);
+          render();
+        };
+        card.appendChild(removeBtn);
 
-          const shortlist = getShortlist();
-          if (!shortlist.includes(slug)) {
-            shortlist.push(slug);
-            saveShortlist(shortlist);
-          }
+        if (selectedArtistSlug === slug) {
+          card.classList.add("ring-2", "ring-indigo-400");
+        }
 
+        card.onclick = () => {
+          selectedArtistSlug = slug;
           render();
         };
 
-        stageEl.appendChild(item);
+        gridEl.appendChild(card);
       });
+    }
 
-      // Stage highlight & click only if selected artist is unassigned
-      const isArtistSelectable =
-        selectedArtistSlug && !assignments[selectedArtistSlug];
+    function renderStages() {
+      stageBoard.innerHTML = "";
+      const assignments = getAssignments();
 
-      if (isArtistSelectable) {
-        stageEl.classList.add("ring-2", "ring-indigo-400", "cursor-pointer");
-        stageEl.onclick = () => {
-          selectedStageId = stage.stageId;
-          openTimeModal();
-        };
-      } else {
-        stageEl.classList.remove("ring-2", "ring-indigo-400", "cursor-pointer");
-        stageEl.onclick = null;
-      }
+      venues.forEach(stage => {
+        const stageEl = document.createElement("div");
+        stageEl.className =
+          "bg-slate-800 p-6 rounded-2xl min-h-[380px] shadow-lg flex flex-col";
 
-      stageBoard.appendChild(stageEl);
-    });
-  }
+        stageEl.innerHTML = `<h3 class="font-bold text-lg mb-4">${stage.name}</h3>`;
 
-  clearBtn.onclick = () => {
-    saveShortlist([]);
+        const stageAssignments = Object.entries(assignments)
+          .filter(([_, info]) => info.stage === stage.stageId)
+          .sort((a, b) => timeToMinutes(a[1].time) - timeToMinutes(b[1].time));
+
+        stageAssignments.forEach(([slug, info]) => {
+          const artist = allArtists.find(a => a.slug === slug);
+          if (!artist) return;
+
+          const item = document.createElement("div");
+          item.className =
+            "bg-indigo-600 text-white px-4 py-3 rounded-lg mb-3 flex justify-between items-center text-sm";
+
+          item.innerHTML = `<span>${artist.name} (${info.time})</span><button class="text-red-200">✕</button>`;
+
+          item.querySelector("button").onclick = () => {
+            const assignments = getAssignments();
+            delete assignments[slug];
+            saveAssignments(assignments);
+
+            const shortlist = getShortlist();
+            if (!shortlist.includes(slug)) {
+              shortlist.push(slug);
+              saveShortlist(shortlist);
+            }
+
+            render();
+          };
+
+          stageEl.appendChild(item);
+        });
+
+        const isArtistSelectable =
+          selectedArtistSlug && !assignments[selectedArtistSlug];
+
+        if (isArtistSelectable) {
+          stageEl.classList.add("ring-2", "ring-indigo-400", "cursor-pointer");
+          stageEl.onclick = () => {
+            selectedStageId = stage.stageId;
+            openTimeModal();
+          };
+        }
+
+        stageBoard.appendChild(stageEl);
+      });
+    }
+
+    clearBtn.onclick = () => {
+      saveShortlist([]);
+      render();
+    };
+
+    function render() {
+      renderPool();
+      renderStages();
+    }
+
     render();
-  };
-
-  /* RENDER ALL */
-  function render() {
-    renderPool();
-    renderStages();
-  }
-
-  render();
   </script>
+</BaseLayout>

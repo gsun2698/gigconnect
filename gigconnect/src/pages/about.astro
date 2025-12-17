@@ -4,36 +4,54 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout title="Project Showcase - GigConnect">
   <section class="relative text-center py-24 bg-slate-900 text-white">
-    <h1 class="text-5xl md:text-6xl font-extrabold mb-6">
+    <h1 class="text-5xl md:text-6xl font-extrabold mb-20">
       GigConnect: Event Planning App Concept
     </h1>
-    <p class="text-xl md:text-2xl text-slate-300 max-w-2xl mx-auto mb-12">
-      A conceptual app designed to simplify event planning and artist bookings, created as my final project for CSCI E-12 Fundamentals of Web Application Development.
-    </p>
-
-    <div class="max-w-3xl mx-auto text-left space-y-10">
+    <div class="max-w-3xl mx-auto text-left space-y-12">
+      <!-- About GigConnect -->
       <section>
-        <h2 class="text-3xl font-semibold mb-2">Key Features</h2>
-        <ul class="list-disc list-inside text-slate-300 space-y-1">
-          <li>Shortlist artists for events and manage schedules.</li>
-          <li>Assign artists to stages with available time slots.</li>
-          <li>Interactive visual planner to easily view event lineup.</li>
+        <h2 class="text-3xl font-semibold mb-4">About GigConnect</h2>
+        <p class="text-slate-300 leading-relaxed">
+          GigConnect is designed for event organizers, venue managers, and talent coordinators to streamline the process of planning concerts, festivals, and other live events. 
+          The platform provides an intuitive way to shortlist artists, manage stage assignments, and schedule performance times—all from a single interactive interface.
+        </p>
+      </section>
+
+      <!-- Key Features -->
+      <section>
+        <h2 class="text-3xl font-semibold mb-4">Key Features</h2>
+        <ul class="list-disc list-inside text-slate-300 space-y-2">
+          <li>Shortlist artists for events and manage schedules effortlessly.</li>
+          <li>Assign artists to stages with available time slots visually.</li>
+          <li>Interactive planner with drag-and-drop or click-to-assign functionality.</li>
+          <li>View artist details, tour dates, and contact information in one place.</li>
+          <li>Review past bookings with feedback from other event organizers.</li>
+          <li>Responsive design for desktop, tablet, and mobile use.</li>
         </ul>
       </section>
 
+      <!-- Tech Stack & Tools -->
       <section>
-        <h2 class="text-3xl font-semibold mb-2">Tech Stack & Tools</h2>
-        <p class="text-slate-300">
-          Built with <strong>Astro</strong>, <strong>Tailwind CSS</strong>, and <strong>JavaScript</strong>.
-        </p> 
+        <h2 class="text-3xl font-semibold mb-4">Tech Stack & Tools</h2>
+        <p class="text-slate-300 leading-relaxed">
+          Built with <strong>Astro</strong> for fast static site generation, <strong>Tailwind CSS</strong> for responsive and modern UI, and <strong>JavaScript</strong> for dynamic interactivity. 
+          Local storage is used to simulate real-time planner functionality.
+        </p>
       </section>
 
+      <!-- Future Vision -->
       <section>
-        <h2 class="text-3xl font-semibold mb-2">Future Vision</h2>
-        <p class="text-slate-300">
-          Potential future features could include real-time collaboration, artist profiles with media galleries, 
-          and integration with ticketing platforms.
+        <h2 class="text-3xl font-semibold mb-4">Future Vision</h2>
+        <p class="text-slate-300 leading-relaxed">
+          Potential future features include:
         </p>
+        <ul class="list-disc list-inside text-slate-300 space-y-2">
+          <li>Real-time collaboration for multiple organizers.</li>
+          <li>Artist profiles with media galleries, social links, and tour history.</li>
+          <li>Integration with ticketing platforms and event analytics.</li>
+          <li>Notifications and reminders for schedule changes.</li>
+          <li>Mobile app support for on-the-go event management.</li>
+        </ul>
       </section>
     </div>
   </section>

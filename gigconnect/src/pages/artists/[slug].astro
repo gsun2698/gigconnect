@@ -4,9 +4,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
 // Generate a static page for each artist based on slug
 export function getStaticPaths() {
-    return artists.map((a) => ({
-        params: { slug: a.slug },
-    }));
+  return artists.map((a) => ({
+    params: { slug: a.slug },
+  }));
 }
 
 const { slug } = Astro.params;
@@ -14,162 +14,223 @@ const { slug } = Astro.params;
 // Find the artist by slug
 const artist = artists.find((a) => a.slug === slug);
 if (!artist) {
-    // If someone tries to access a non-existent artist, throw an error
-    throw new Error(`Artist not found for slug: ${slug}`);
+  throw new Error(`Artist not found for slug: ${slug}`);
 }
-
-const STORAGE_KEY = "gigconnect-shortlist"
 ---
 
 <BaseLayout title={`GigConnect - ${artist.name}`}>
- 
+
   <!-- Top nav -->
   <section class="mb-6 flex items-center justify-between gap-4">
-    <a href="/artists"
-      class="text-sm text-slate-300 hover:text-indigo-400 transition-colors"
-    >
+    <a href="/artists" class="text-lg text-slate-300 hover:text-indigo-400 transition-colors">
       &larr; Back to Artists
-    </a>
-   
-    <a 
-      href="/planner"
-      class="text-sm bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg font-medium transition-colors"
-      >
-        View Planner
     </a>
   </section>
 
-  <!-- Main Content -->
-  <section class="grid gap-8 lg:grid-cols-2 items-start">
-    <!-- Image + actions -->
-    <div class="w-full">
-      <div class="relative h-72 sm:h-80 rounded-2xl overflow-hidden border border-slate-700 bg-slate-900">
-            <!-- Blurred background fill -->
-        {artist.image && (
-          <img
-            src={artist.image}
-            alt=""
-            aria-hidden="true"
-            class="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-40"
-            loading="lazy"
-          />
-        )}
-            <!-- contained foreground image -->
-        {artist.image && (
-          <img
-            src={artist.image}
-            alt={artist.name}
-            class="absolute inset-0 w-full h-full object-contain p-6"
-            loading="lazy"
-           />
-        )}
+  <!-- Artist Header -->
+  <section class="relative w-full h-96 sm:h-[28rem] rounded-3xl overflow-hidden shadow-lg">
+    {artist.image && (
+      <img src={artist.image} alt={artist.name} class="absolute inset-0 w-full h-full object-contain brightness-75"/>
+    )}
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-800/90 to-transparent"></div>
 
-            <!-- Readibility overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent"></div>
+    <!-- Name & Genre overlay -->
+    <div class="absolute bottom-6 left-6 text-white">
+      <h1 class="text-4xl sm:text-5xl font-extrabold drop-shadow-lg">{artist.name}</h1>
+      <p class="mt-1 text-sm sm:text-base text-slate-200 drop-shadow">{artist.genre} · {artist.location}</p>
+    </div>
+  </section>
 
-            <!-- Name overlay -->
-        <div class="absolute bottom-0 left-0 right-0 p-5">
-          <h1 class="text-3xl font-bold text-slate-100 drop-shadow-md">
-            {artist.name}
-          </h1>
-          <p class="mt-1 text-sm text-slate-200/90">
-            {artist.genre} . {artist.location}
+  <!-- Artist Details Grid -->
+  <section class="mt-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Description + Social -->
+    <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-6">
+      <p class="text-slate-300 text-lg leading-relaxed">
+        {artist.description}
+      </p>
+
+      <div class="flex flex-wrap gap-4 items-center">
+        <a href="#"
+           title="Website not available for demo"
+           class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium cursor-not-allowed">
+          🌐 Website
+        </a>
+        <a href="#"
+           title="Instagram link not available for demo"
+           class="px-4 py-2 bg-pink-500 hover:bg-pink-400 text-white rounded-lg text-sm font-medium cursor-not-allowed">
+          📸 Instagram
+        </a>
+        <a href="#"
+           title="Spotify link not available for demo"
+           class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium cursor-not-allowed">
+          🎵 Spotify
+        </a>
+      </div>
+    </div>
+
+    <!-- Tour Dates -->
+    <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-4">
+      <h2 class="text-2xl font-bold text-white">Upcoming Tour Dates</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-slate-700/60 p-4 rounded-lg">
+          <p class="font-semibold text-white">Dec 20, 2025</p>
+          <p class="text-slate-300 text-sm">The Neon Arena · Los Angeles, CA</p>
+        </div>
+        <div class="bg-slate-700/60 p-4 rounded-lg">
+          <p class="font-semibold text-white">Jan 5, 2026</p>
+          <p class="text-slate-300 text-sm">Pulse Hall · New York, NY</p>
+        </div>
+        <div class="bg-slate-700/60 p-4 rounded-lg">
+          <p class="font-semibold text-white">Feb 10, 2026</p>
+          <p class="text-slate-300 text-sm">Lunar Stage · Chicago, IL</p>
+        </div>
+        <div class="bg-slate-700/60 p-4 rounded-lg">
+          <p class="font-semibold text-white">Mar 2, 2026</p>
+          <p class="text-slate-300 text-sm">Nova Prime · Miami, FL</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Management -->
+    <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-6">
+      <h2 class="text-2xl font-bold text-white">Management & Booking</h2>
+
+      <div class="grid sm:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-slate-400">Manager</p>
+          <p class="text-lg font-semibold text-white">Alex Rivera</p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-400">Booking Email</p>
+          <p class="text-lg font-semibold text-white">booking@gigconnect.com</p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-400">Phone</p>
+          <p class="text-lg font-semibold text-white">(555) 123-9876</p>
+        </div>
+        <div>
+          <p class="text-sm text-slate-400">Preferred Regions</p>
+          <p class="text-lg font-semibold text-white">US · Canada · Europe</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-400">
+        *Contact information is for demo purposes only.
+      </p>
+    </div>
+
+    <!-- Reviews -->
+    <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-lg space-y-6">
+      <h2 class="text-2xl font-bold text-white">What Bookers Are Saying</h2>
+
+      <div class="space-y-4">
+        <div class="bg-slate-700/60 p-5 rounded-xl">
+          <div class="text-yellow-400 text-sm mb-1">★★★★★</div>
+          <p class="text-slate-200">
+            “One of the most professional and crowd-engaging artists we've booked.”
+          </p>
+          <p class="mt-3 text-sm text-slate-400">
+            — Jordan Miles · Miami
           </p>
         </div>
 
-      </div>
-
-      <!-- Actions -->
-        <div class= "mt-4 flex flex-wrap gap-3">
-          <button
-            id="add-to-planner"
-            data-slug={artist.slug}
-            class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            Add to Planner
-          </button>
-              
-          <button
-            id="remove-from-planner"
-            data-slug={artist.slug}
-            class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            Remove
-          </button>
-
-          <span
-          id="planner-status"
-          class="text-sm text-slate-300 self-center"
-        ></span>
+        <div class="bg-slate-700/60 p-5 rounded-xl">
+          <div class="text-yellow-400 text-sm mb-1">★★★★☆</div>
+          <p class="text-slate-200">
+            “Great energy, punctual, and easy to work with.”
+          </p>
+          <p class="mt-3 text-sm text-slate-400">
+            — Samantha Lee · Los Angeles
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Client-side script -->
+  <!-- Planner Actions -->
+  <section class="mt-10 justify-center max-w-4xl mx-auto flex flex-wrap gap-6">
+    <button 
+      id="add-to-planner" 
+      data-slug={artist.slug} 
+      class="bg-indigo-600 hover:bg-indigo-500 cursor-pointer text-white px-20 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:scale-105 transform"
+      title="Add this artist to your planner"
+    >
+      Add to Planner
+    </button>
+
+    <button 
+      id="remove-from-planner" 
+      data-slug={artist.slug} 
+      class="bg-slate-700 hover:bg-slate-600 text-white px-20 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:scale-105 transform"
+      title="Remove this artist from your planner"
+    >
+      Remove
+    </button>
+
+    <button
+      id="book-artist"
+      class="bg-indigo-800 hover:bg-indigo-600 text-white px-20 py-6 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:scale-105 transform cursor-not-allowed"
+      title="Booking not available in demo"
+    >
+      Book Artist
+    </button>
+  </section>
+
+  <!-- Client Script for Planner -->
   <script type="module" client:load>
     const STORAGE_KEY = "gigconnect-shortlist";
-    const statusEl = document.getElementById("planner-status")
+    const STAGE_KEY = "gigconnect-stage-assignments";
     const addBtn = document.getElementById("add-to-planner");
-    const removeBtn = document.getElementById("remove-from-planner")
-
+    const removeBtn = document.getElementById("remove-from-planner");
     const slug = addBtn?.dataset.slug || removeBtn?.dataset.slug || "";
 
-    if (slug) {
-      const inPlanner = getShortlist().includes(slug);
-      updateButtons(inPlanner);
+    function getShortlist() {
+      try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
     }
 
-    function updateButtons(inPlanner) {
-      if (addBtn) addBtn.style.display = inPlanner ? "none" : "inline-flex";
-      if (removeBtn) removeBtn.style.display = inPlanner ? "inline-flex" : "none";
+    function saveShortlist(slugs) { localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs)); }
+
+    function getAssignments() {
+      try { const raw = localStorage.getItem(STAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
     }
-    
-    function getShortlist() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
-      } catch {
-        return [];
+
+    function updateButtons() {
+      const shortlist = getShortlist();
+      const assignments = getAssignments();
+      const inPlanner = shortlist.includes(slug);
+      const assignedToStage = assignments[slug] !== undefined;
+
+      if (addBtn) {
+        addBtn.style.display = inPlanner ? "none" : "inline-flex";
+        addBtn.disabled = assignedToStage;
+      }
+
+      if (removeBtn) {
+        removeBtn.style.display = inPlanner ? "inline-flex" : "none";
+        removeBtn.disabled = assignedToStage;
       }
     }
 
-    function saveShortlist(slugs) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(slugs));
-    }
-
-    function updateStatus(message) {
-      if (statusEl) statusEl.textContent = message;
-    }
+    updateButtons();
 
     addBtn?.addEventListener("click", () => {
-      if (!addBtn || !removeBtn) return;
-      addBtn.disabled = true;
-      const slug = addBtn.dataset.slug;
-      if (!slug) return;
       const shortlist = getShortlist();
       if (!shortlist.includes(slug)) {
         shortlist.push(slug);
         saveShortlist(shortlist);
-        updateStatus("Added to planner ✅");
-        updateButtons(true);
-      } else {
-        updateStatus("Already in planner ⚠️");
+        updateButtons();
       }
-
-      removeBtn.disabled = false;
     });
 
     removeBtn?.addEventListener("click", () => {
-      if (!addBtn || !removeBtn) return;
-      removeBtn.disabled = true;
-      const slug = removeBtn.dataset.slug;
-      if (!slug) return;
+      const assignments = getAssignments();
+      if (assignments[slug]) return;
       const shortlist = getShortlist().filter(s => s !== slug);
       saveShortlist(shortlist);
-      updateStatus("Removed from planner ❌");
-      updateButtons(false);
-
-      addBtn.disabled = false;
+      updateButtons();
     });
   </script>
+
 </BaseLayout>
